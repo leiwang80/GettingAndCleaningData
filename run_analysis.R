@@ -1,16 +1,6 @@
 # Getting anfd Cleaning Data Course Project
 library(dplyr)
-
-# Read the data from text file to data frame
-# X_test.txt
-# X_train.txt
-# activity_labels.txt
-# features.txt
-# run_analysis.R
-# subject_test.txt
-# subject_train.txt
-# y_test.txt
-# y_train.txt
+library(reshape2)
 
 # read the feature file
 feature_all = read.table("features.txt")
@@ -47,21 +37,37 @@ y = rbind(y_train, y_test)
 
 # read activity_label data 
 # create activity data from y data by merge
-activity_label = read.table("activity_labels.txt")
-activity = merge(y, activity_label, by.x="V1", by.y="V1")[,2]
-names(activity) = c("Activity")
+activity_label <- read.table("activity_labels.txt")
+names(activity_label) <- c("activity_id", "Activity")
+names(y) <-c("activity_id")
+activity <- merge(y, activity_label)
 
 # read the subject data
-subject_train = read.table("subject_train.txt", colClasses = "factor")
-subject_test = read.table("subject_test.txt", colClasses = "factor")
-subject = rbind(subject_train, subject_test)
-names(subject) = c("Subject")
+subject_train <- read.table("subject_train.txt")
+subject_test <- read.table("subject_test.txt")
+subject <- rbind(subject_train, subject_test)
+names(subject) <- c("subject_id")
 
-# Combine the data
-data = cbind(subject, activity, X)
+# create IDs used for merge data frame
+subject_id = data.frame(subject_id = 1:30)
+ids <- merge(activity_label, subject_id, all=TRUE)
+ids <- mutate(ids, id = subject_id*10 + activity_id )
 
+# Combine the data, add another id column
+data <- cbind(subject, activity, X)
+data <- mutate(data, id = subject_id*10 + activity_id )
 
+# Melt the data
+dMelt <- melt(data, id=c("id"), measure.vars=feature_name)
 
+#Cast back
+result <- dcast(dMelt, id ~ variable, mean)
 
+#Merge with subject 
+result <- merge(ids, result, by.x="id", by.y="id")
 
+result<-result[ ,c(4,3,5:83)]
+
+#write the result to file
+write.table(result, "results.txt", row.names = FALSE)
 

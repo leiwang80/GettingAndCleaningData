@@ -1,5 +1,5 @@
 # GettingAndCleaningData
-The means of the follow features of all the original features are calculated. These feature are mean and standard deviation related.  Results are in file results.txt.  The units are radians/second.
+The means of the follow features of all the original features are calculated.   The mean tableau is in the file results.txt.  The units are radians/second.  These feature are mean and standard deviation related. They are got by using by using grep() function on key words "mean()|std()" and the vector of complete features.The main steps of processing involve adding an artificial column "id", using reshape2 package's melt() and dcast() functions. 
 
 1 tBodyAcc-mean()-X
 2 tBodyAcc-mean()-Y
